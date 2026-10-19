@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بطاقة التواصل الرقمية</title>
+    <!-- مكتبة FontAwesome لأيقونات التواصل الاجتماعي -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- مكتبة لإنشاء الـ QR Code محلياً بدون مشاكل -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            outline: none;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+
+        .input-group input:focus {
+            border-color: #007bff;
+        }
+
+        .custom-account-box {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px dashed #ccc;
+            margin-bottom: 10px;
+        }
+
+        button.btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button.btn-submit:hover {
+            background: #0056b3;
+        }
+
+        button.btn-secondary {
+            background: #6c757d;
+            margin-top: 5px;
+        }
+
+        button.btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        button.btn-info {
+            background: #17a2b8;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        button.btn-info:hover {
+            background: #138496;
+        }
+
+        /* تنسيق كروت التواصل */
+        .card-list {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .social-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .social-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .facebook { background: #1877f2; }
+        .instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .whatsapp { background: #25d366; }
+        .tiktok { background: #000000; }
+        .telegram { background: #0088cc; }
+        .snapchat { background: #fffc00; color: #000 !important; }
+        .custom-app { background: #495057; }
+
+        .qr-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #qrcode {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            display: inline-block;
+        }
+
+        .share-url {
+            margin-top: 15px;
+            width: 100%;
+            word-break: break-all;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            border: 1px dashed #ccc;
+        }
+
+        /* تنسيق نافذة الشرح المنبثقة */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 100%;
+            text-align: right;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #007bff;
+            text-align: center;
+        }
+
+        .modal-content ul {
+            padding-right: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .modal-content li {
+            margin-bottom: 10px;
+        }
+
+        .close-modal {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- النموذج الأول: إدخال البيانات -->
+        <div id="form-container">
+            <h2>صمم بطاقتك الرقمية</h2>
+            
+            <div class="input-group">
+                <label>اسمك الكامل / اللقب</label>
+                <input type="text" id="name" placeholder="مثال: أحمد محمد">
+            </div>
+
+            <div class="input-group">
+                <label>اسم المستخدم في الإنستجرام (Username)</label>
+                <input type="text" id="insta" placeholder="مثال: user_name">
+            </div>
+
+            <div class="input-group">
+                <label>رابط حساب الفيس بوك</label>
+                <input type="text" id="fb" placeholder="https://facebook.com/your.profile">
+            </div>
+
+            <div class="input-group">
+                <label>رقم الواتساب (بالكود الدولي دون +)</label>
+                <input type="text" id="wa" placeholder="مثال: 201012345678">
+            </div>
+
+            <div class="input-group">
+                <label>اسم المستخدم في تيك توك</label>
+                <input type="text" id="tt" placeholder="مثال: username">
+            </div>
+
+            <div class="input-group">
+                <label>اسم المستخدم في تليجرام</label>
+                <input type="text" id="tg" placeholder="مثال: username">
+            </div>
+
+            <div class="input-group">
+                <label>اسم المستخدم في سناب شات</label>
+                <input type="text" id="snap" placeholder="مثال: username">
+            </div>
+
+            <!-- قسم الحسابات الإضافية -->
+            <div id="custom-accounts-container">
+                <label style="display:block; text-align:right; font-weight:bold; font-size:14px; color:#555; margin-bottom:5px;">حسابات إضافية (أخرى)</label>
+            </div>
+            
+            <button class="btn-submit btn-secondary" onclick="addCustomField()">+ إضافة حساب آخر</button>
+            <button class="btn-submit btn-info" onclick="toggleModal(true)">❓ كيف تحصل على روابط ومعرفات التطبيقات؟</button>
+
+            <button class="btn-submit" onclick="generateLink()">إنشاء الرابط والـ QR Code</button>
+        </div>
+
+        <!-- نافذة الشرح المنبثقة -->
+        <div id="info-modal" class="modal">
+            <div class="modal-content">
+                <h3>دليل جلب الروابط والـ Usernames</h3>
+                <ul>
+                    <li><b>إنستجرام وتيك توك وتليجرام وسناب شات:</b> اكتب فقط اسم المستخدم (Username) بدون علامة (@) وبدون مسافات.</li>
+                    <li><b>فيسبوك:</b> انسخ رابط بروفايلك كاملاً والصقه في الخانة.</li>
+                    <li><b>واتساب:</b> اكتب رقم هاتفك متبوعاً بكود الدولة بدون علامة (+) أو مسافات (مثال: `201012345678`).</li>
+                    <li><b>حسابات إضافية:</b> اكتب اسم المنصة في المربع الأول، والرابط الكامل يبدأ بـ `https://` في المربع الثاني.</li>
+                </ul>
+                <button class="close-modal" onclick="toggleModal(false)">فهمت، إغلاق</button>
+            </div>
+        </div>
+
+        <!-- المعرض: عرض بطاقة البيانات والشير -->
+        <div id="card-container" class="hidden">
+            <h2 id="display-name">صفحة التواصل</h2>
+            
+            <div class="card-list" id="links-list">
+                <!-- الروابط هتنزل هنا بالـ JavaScript -->
+            </div>
+
+            <div class="qr-section">
+                <p style="margin-bottom: 5px; font-weight: bold; font-size: 14px;">رمز الـ QR الخاص بك:</p>
+                <div id="qrcode"></div>
+                
+                <div class="share-url">
+                    <p style="font-weight: bold; margin-bottom: 5px;">رابط صفحتك:</p>
+                    <a id="page-link" href="#" target="_blank" style="color: #007bff;"></a>
+                </div>
+
+                <button class="btn-submit btn-secondary" style="margin-top: 15px;" onclick="resetForm()">إنشاء بطاقة جديدة</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleModal(show) {
+            const modal = document.getElementById('info-modal');
+            modal.style.display = show ? 'flex' : 'none';
+        }
+
+        function addCustomField() {
+            const container = document.getElementById('custom-accounts-container');
+            const box = document.createElement('div');
+            box.className = 'custom-account-box';
+            box.innerHTML = `
+                <input type="text" placeholder="اسم التطبيق (مثال: يوتيوب، تويتر)" class="custom-title" style="margin-bottom: 8px; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
+                <input type="text" placeholder="الرابط الكامل (https://...)" class="custom-url" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
+            `;
+            container.appendChild(box);
+        }
+
+        function generateLink() {
+            const name = document.getElementById('name').value;
+            const insta = document.getElementById('insta').value;
+            const fb = document.getElementById('fb').value;
+            const wa = document.getElementById('wa').value;
+            const tt = document.getElementById('tt').value;
+            const tg = document.getElementById('tg').value;
+            const snap = document.getElementById('snap').value;
+
+            if(!name) {
+                alert("برجاء كتابة الاسم أولاً");
+                return;
+            }
+
+            const queryParams = new URLSearchParams({
+                name: name,
+                insta: insta,
+                fb: fb,
+                wa: wa,
+                tt: tt,
+                tg: tg,
+                snap: snap
+            });
+
+            const customTitles = document.querySelectorAll('.custom-title');
+            const customUrls = document.querySelectorAll('.custom-url');
+            
+            let customData = [];
+            for(let i = 0; i < customTitles.length; i++) {
+                if(customTitles[i].value && customUrls[i].value) {
+                    customData.push(customTitles[i].value + "|" + customUrls[i].value);
+                }
+            }
+            if(customData.length > 0) {
+                queryParams.append('custom', customData.join('||'));
+            }
+
+            const currentUrl = window.location.href.split('?')[0];
+            const finalUrl = `${currentUrl}?${queryParams.toString()}`;
+            
+            window.location.href = finalUrl;
+        }
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.has('name')) {
+                document.getElementById('form-container').classList.add('hidden');
+                document.getElementById('card-container').classList.remove('hidden');
+
+                const name = urlParams.get('name');
+                const insta = urlParams.get('insta');
+                const fb = urlParams.get('fb');
+                const wa = urlParams.get('wa');
+                const tt = urlParams.get('tt');
+                const tg = urlParams.get('tg');
+                const snap = urlParams.get('snap');
+                const custom = urlParams.get('custom');
+
+                document.getElementById('display-name').innerText = name;
+
+                const linksList = document.getElementById('links-list');
+                linksList.innerHTML = '';
+
+                if(insta) {
+                    linksList.innerHTML += `<a href="https://instagram.com/${insta}" target="_blank" class="social-card instagram"><span><i class="fab fa-instagram"></i> Instagram</span><span>@${insta}</span></a>`;
+                }
+
+                if(fb) {
+                    linksList.innerHTML += `<a href="${fb.startsWith('http') ? fb : 'https://' + fb}" target="_blank" class="social-card facebook"><span><i class="fab fa-facebook"></i> Facebook</span><span>زيارة الحساب</span></a>`;
+                }
+
+                if(wa) {
+                    linksList.innerHTML += `<a href="https://wa.me/${wa}" target="_blank" class="social-card whatsapp"><span><i class="fab fa-whatsapp"></i> WhatsApp</span><span>مراسلة عبر واتساب</span></a>`;
+                }
+
+                if(tt) {
+                    linksList.innerHTML += `<a href="https://tiktok.com/@${tt}" target="_blank" class="social-card tiktok"><span><i class="fab fa-tiktok"></i> TikTok</span><span>@${tt}</span></a>`;
+                }
+
+                if(tg) {
+                    linksList.innerHTML += `<a href="https://t.me/${tg}" target="_blank" class="social-card telegram"><span><i class="fab fa-telegram"></i> Telegram</span><span>@${tg}</span></a>`;
+                }
+
+                if(snap) {
+                    linksList.innerHTML += `<a href="https://snapchat.com/add/${snap}" target="_blank" class="social-card snapchat"><span><i class="fab fa-snapchat"></i> Snapchat</span><span>@${snap}</span></a>`;
+                }
+
+                if(custom) {
+                    const accounts = custom.split('||');
+                    accounts.forEach(acc => {
+                        const parts = acc.split('|');
+                        if(parts.length === 2) {
+                            const title = parts[0];
+                            const link = parts[1];
+                            linksList.innerHTML += `<a href="${link.startsWith('http') ? link : 'https://' + link}" target="_blank" class="social-card custom-app"><span><i class="fas fa-link"></i> ${title}</span><span>زيارة</span></a>`;
+                        }
+                    });
+                }
+
+                const pageUrl = window.location.href;
+                document.getElementById('page-link').href = pageUrl;
+                document.getElementById('page-link').innerText = pageUrl;
+
+                // توليد الـ QR Code محلياً باستخدام المكتبة المضافة
+                new QRCode(document.getElementById("qrcode"), {
+                    text: pageUrl,
+                    width: 150,
+                    height: 150,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+        };
+
+        function resetForm() {
+            window.location.href = window.location.href.split('?')[0];
+        }
+    </script>
+</body>
+</html>
